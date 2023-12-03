@@ -21,8 +21,16 @@
 //  USA.
 //
 
+import ghostawt.image.GGraphics2D;
+import ghostawt.image.GGraphicsConfiguration;
+import ghostawt.image.GGraphicsDevice;
+import kpolicar.KpolicarGraphics;
+import kpolicar.KpolicarMemoryImageSource;
+import sun.awt.image.ToolkitImage;
+
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DirectColorModel;
 import java.awt.image.MemoryImageSource;
@@ -50,10 +58,12 @@ class VncCanvas extends Canvas
   int scaledWidth, scaledHeight;
 
   Image memImage;
-  Graphics memGraphics;
+  Graphics graphics = new KpolicarGraphics("./vnccanvas.png");
+  Graphics memGraphics = new KpolicarGraphics("./memgraphics.png");
+  //Graphics memGraphics = new GGraphics2D(new GGraphicsConfiguration(new GGraphicsDevice()));
 
   Image rawPixelsImage;
-  MemoryImageSource pixelsSource;
+    KpolicarMemoryImageSource pixelsSource;
   byte[] pixels8;
   int[] pixels24;
 
@@ -103,7 +113,6 @@ class VncCanvas extends Canvas
 
   public VncCanvas(VncViewer v, int maxWidth_, int maxHeight_)
     throws IOException {
-
     viewer = v;
     maxWidth = maxWidth_;
     maxHeight = maxHeight_;
@@ -135,7 +144,12 @@ class VncCanvas extends Canvas
     this(v, 0, 0);
   }
 
-  //
+    @Override
+    public Graphics getGraphics() {
+        return graphics;
+    }
+
+    //
   // Callback methods to determine geometry of our Component.
   //
 
@@ -194,7 +208,7 @@ class VncCanvas extends Canvas
       if ((infoflags & ALLBITS) != 0) {
 	if (jpegRect != null) {
 	  synchronized(jpegRect) {
-	    memGraphics.drawImage(img, jpegRect.x, jpegRect.y, null);
+	    //memGraphics.drawImage(img, x, y, width, height, null);
 	    scheduleRepaint(jpegRect.x, jpegRect.y,
 			    jpegRect.width, jpegRect.height);
 	    jpegRect.notify();
@@ -243,7 +257,6 @@ class VncCanvas extends Canvas
   }
 
   void updateFramebufferSize() {
-
     // Useful shortcuts.
     int fbWidth = rfb.framebufferWidth;
     int fbHeight = rfb.framebufferHeight;
@@ -265,16 +278,17 @@ class VncCanvas extends Canvas
     // Create new off-screen image either if it does not exist, or if
     // its geometry should be changed. It's not necessary to replace
     // existing image if only pixel format should be changed.
-    if (memImage == null) {
-      memImage = viewer.vncContainer.createImage(fbWidth, fbHeight);
-      memGraphics = memImage.getGraphics();
-    } else if (memImage.getWidth(null) != fbWidth ||
-	       memImage.getHeight(null) != fbHeight) {
-      synchronized(memImage) {
-	memImage = viewer.vncContainer.createImage(fbWidth, fbHeight);
-	memGraphics = memImage.getGraphics();
-      }
-    }
+      //TODO
+//    if (memImage == null) {
+//      memImage = new BufferedImage(fbWidth, fbHeight, BufferedImage.TYPE_INT_RGB);
+//      memGraphics = memImage.getGraphics();
+//    } else if (memImage.getWidth(null) != fbWidth ||
+//	       memImage.getHeight(null) != fbHeight) {
+//      synchronized(memImage) {
+//        memImage = new BufferedImage(fbWidth, fbHeight, BufferedImage.TYPE_INT_RGB);
+//	    memGraphics = memImage.getGraphics();
+//      }
+//    }
 
     // Images with raw pixels should be re-allocated on every change
     // of geometry or pixel format.
@@ -284,7 +298,7 @@ class VncCanvas extends Canvas
       pixels8 = new byte[fbWidth * fbHeight];
 
       pixelsSource =
-	new MemoryImageSource(fbWidth, fbHeight, cm8, pixels8, 0, fbWidth);
+	new KpolicarMemoryImageSource(fbWidth, fbHeight, cm8, pixels8, 0, fbWidth);
 
       zrleTilePixels24 = null;
       zrleTilePixels8 = new byte[64 * 64];
@@ -295,14 +309,17 @@ class VncCanvas extends Canvas
       pixels24 = new int[fbWidth * fbHeight];
 
       pixelsSource =
-	new MemoryImageSource(fbWidth, fbHeight, cm24, pixels24, 0, fbWidth);
+	new KpolicarMemoryImageSource(fbWidth, fbHeight, cm24, pixels24, 0, fbWidth);
 
       zrleTilePixels8 = null;
       zrleTilePixels24 = new int[64 * 64];
 
     }
+
     pixelsSource.setAnimated(true);
-    rawPixelsImage = Toolkit.getDefaultToolkit().createImage(pixelsSource);
+    rawPixelsImage = new ToolkitImage(pixelsSource);
+    rawPixelsImage.getWidth(null);
+    //rawPixelsImage = Toolkit.getDefaultToolkit().createImage(pixelsSource);
 
     // Update the size of desktop containers.
     if (viewer.inSeparateFrame) {
@@ -365,7 +382,6 @@ class VncCanvas extends Canvas
   //
 
   public void processNormalProtocol() throws Exception {
-
     // Start/stop session recording if necessary.
     viewer.checkRecordingStatus();
 
@@ -1152,7 +1168,6 @@ class VncCanvas extends Canvas
 
     // Handle solid-color rectangles.
     if (comp_ctl == rfb.TightFill) {
-
       if (bytesPixel == 1) {
 	int idx = rfb.readU8();
 	memGraphics.setColor(colors[idx]);
@@ -1176,7 +1191,6 @@ class VncCanvas extends Canvas
     }
 
     if (comp_ctl == rfb.TightJpeg) {
-
       statNumRectsTightJPEG++;
 
       // Read JPEG data.
@@ -1198,7 +1212,7 @@ class VncCanvas extends Canvas
       // Let the imageUpdate() method do the actual drawing, here just
       // wait until the image is fully loaded and drawn.
       synchronized(jpegRect) {
-	Toolkit.getDefaultToolkit().prepareImage(jpegImage, -1, -1, this);
+        Toolkit.getDefaultToolkit().prepareImage(jpegImage, -1, -1, this);
 	try {
 	  // Wait no longer than three seconds.
 	  jpegRect.wait(3000);
@@ -1206,6 +1220,7 @@ class VncCanvas extends Canvas
 	  throw new Exception("Interrupted while decoding JPEG image");
 	}
       }
+    imageUpdate(jpegImage, ALLBITS, x, y, w, h);
 
       // Done, jpegRect is not needed any more.
       jpegRect = null;
@@ -1489,11 +1504,11 @@ class VncCanvas extends Canvas
   //
 
   void handleUpdatedPixels(int x, int y, int w, int h) {
-
     // Draw updated pixels of the off-screen image.
     pixelsSource.newPixels(x, y, w, h);
     memGraphics.setClip(x, y, w, h);
-    memGraphics.drawImage(rawPixelsImage, 0, 0, null);
+      //System.out.println("x:"+y+"\ty: "+y+"\tw:"+w+"\th:"+h);
+    memGraphics.drawImage(rawPixelsImage, 0,0, 1920, 1080, null);
     memGraphics.setClip(0, 0, rfb.framebufferWidth, rfb.framebufferHeight);
   }
 
@@ -1504,13 +1519,13 @@ class VncCanvas extends Canvas
   void scheduleRepaint(int x, int y, int w, int h) {
     // Request repaint, deferred if necessary.
     if (rfb.framebufferWidth == scaledWidth) {
-      repaint(viewer.deferScreenUpdates, x, y, w, h);
+      repaint(x, y, w, h);
     } else {
       int sx = x * scalingFactor / 100;
       int sy = y * scalingFactor / 100;
       int sw = ((x + w) * scalingFactor + 49) / 100 - sx + 1;
       int sh = ((y + h) * scalingFactor + 49) / 100 - sy + 1;
-      repaint(viewer.deferScreenUpdates, sx, sy, sw, sh);
+      repaint(sx, sy, sw, sh);
     }
   }
 
@@ -1831,7 +1846,7 @@ class VncCanvas extends Canvas
       w = Math.max(w, cursorWidth);
       h = Math.max(h, cursorHeight);
 
-      repaint(viewer.deferCursorUpdates, x, y, w, h);
+      repaint(x, y, w, h);
     }
   }
 
@@ -1845,10 +1860,8 @@ class VncCanvas extends Canvas
     cursorX = x;
     cursorY = y;
     if (showSoftCursor) {
-      repaint(viewer.deferCursorUpdates,
-	      oldX - hotX, oldY - hotY, cursorWidth, cursorHeight);
-      repaint(viewer.deferCursorUpdates,
-	      cursorX - hotX, cursorY - hotY, cursorWidth, cursorHeight);
+      repaint(oldX - hotX, oldY - hotY, cursorWidth, cursorHeight);
+      repaint(cursorX - hotX, cursorY - hotY, cursorWidth, cursorHeight);
     }
   }
 
@@ -1862,8 +1875,7 @@ class VncCanvas extends Canvas
       softCursor = null;
       softCursorSource = null;
 
-      repaint(viewer.deferCursorUpdates,
-	      cursorX - hotX, cursorY - hotY, cursorWidth, cursorHeight);
+      repaint(cursorX - hotX, cursorY - hotY, cursorWidth, cursorHeight);
     }
   }
 }

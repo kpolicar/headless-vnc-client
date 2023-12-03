@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="GhostRunner" type="Application" factoryName="Application" nameIsGenerated="true">
+    <option name="ALTERNATIVE_JRE_PATH" value="1.7 (2)" />
+    <option name="MAIN_CLASS_NAME" value="ghostawt.GhostRunner" />
+    <module name="vnc_java-headless" />
+    <option name="PROGRAM_PARAMETERS" value="VncViewer HOST 169.254.83.114 PORT 5900 PASSWORD oryxbot \&quot;Scaling factor\&quot; auto \&quot;Encoding\&quot; rAW \&quot;Show controls\&quot; No \&quot;JPEG image quality\&quot; 9 \&quot;Offer relogin\&quot; No \&quot;Restricted colors\&quot; No \&quot;Compression level\&quot; 7" />
+    <option name="VM_PARAMETERS" value="-Dawt.toolkit=ghostawt.GhostToolkit -Djava.awt.graphicsenv=ghostawt.image.GhostGraphicsEnvironment -Djava.awt.headless=false -Dsun.font.fontmanager=ghostawt.sun.GFontManager -Dsun.boot.library.path=&quot;A:\Projects\IntelliJProjects\vnc_javasrc\untitled\libs\ghostawt\win32:A:\Packages\JDK\jdk1.7.0_51\jre\bin&quot;" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

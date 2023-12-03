@@ -158,7 +158,7 @@ class RecordingFrame extends Frame
     // Set correct text, font and color for the statusLabel.
     stopRecording();
 
-    pack();
+    //pack();
 
     addWindowListener(this);
   }

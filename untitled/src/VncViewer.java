@@ -25,6 +25,12 @@
 // a VNC desktop.
 //
 
+import sun.awt.image.SunVolatileImage;
+import sun.awt.image.VolatileSurfaceManager;
+import sun.java2d.SurfaceData;
+import sun.java2d.SurfaceManagerFactory;
+import sun.java2d.WindowsSurfaceManagerFactory;
+
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -46,6 +52,7 @@ public class VncViewer extends java.applet.Applet
   //
 
   public static void main(String[] argv) {
+    SurfaceManagerFactory.setInstance(new WindowsSurfaceManagerFactory());
     VncViewer v = new VncViewer();
     v.mainArgs = argv;
     v.inAnApplet = false;
@@ -272,7 +279,8 @@ public class VncViewer extends java.applet.Applet
     vc = null;
     try {
       // This throws ClassNotFoundException if there is no Java 2D API.
-      Class cl = Class.forName("java.awt.Graphics2D");
+      //Class cl = Class.forName("java.awt.Graphics2D");
+      Class cl;
       // If we could load Graphics2D class, then we can use VncCanvas2D.
       cl = Class.forName("VncCanvas2");
       Class[] argClasses = { this.getClass(), Integer.TYPE, Integer.TYPE };
@@ -484,24 +492,28 @@ public class VncViewer extends java.applet.Applet
         // Choose Tight or ZRLE encoding for the very first update.
         System.out.println("Using Tight/ZRLE encodings");
         preferredEncoding = RfbProto.EncodingTight;
-      } else if (kbitsPerSecond > 2000 &&
-                 encodingsSaved[0] != RfbProto.EncodingHextile) {
-        // Switch to Hextile if the connection speed is above 2Mbps.
-        System.out.println("Throughput " + kbitsPerSecond +
-                           " kbit/s - changing to Hextile encoding");
-        preferredEncoding = RfbProto.EncodingHextile;
-      } else if (kbitsPerSecond < 1000 &&
-                 encodingsSaved[0] != RfbProto.EncodingTight) {
-        // Switch to Tight/ZRLE if the connection speed is below 1Mbps.
-        System.out.println("Throughput " + kbitsPerSecond +
-                           " kbit/s - changing to Tight/ZRLE encodings");
-        preferredEncoding = RfbProto.EncodingTight;
-      } else {
-        // Don't change the encoder.
-        if (autoSelectOnly)
-          return;
-        preferredEncoding = encodingsSaved[0];
       }
+
+      preferredEncoding = RfbProto.EncodingRaw;
+
+//      else if (kbitsPerSecond > 2000 &&
+//                 encodingsSaved[0] != RfbProto.EncodingHextile) {
+//        // Switch to Hextile if the connection speed is above 2Mbps.
+//        System.out.println("Throughput " + kbitsPerSecond +
+//                           " kbit/s - changing to Hextile encoding");
+//        preferredEncoding = RfbProto.EncodingHextile;
+//      } else if (kbitsPerSecond < 1000 &&
+//                 encodingsSaved[0] != RfbProto.EncodingTight) {
+//        // Switch to Tight/ZRLE if the connection speed is below 1Mbps.
+//        System.out.println("Throughput " + kbitsPerSecond +
+//                           " kbit/s - changing to Tight/ZRLE encodings");
+//        preferredEncoding = RfbProto.EncodingTight;
+//      } else {
+//        // Don't change the encoder.
+//        if (autoSelectOnly)
+//          return;
+//        preferredEncoding = encodingsSaved[0];
+//      }
     } else {
       // Auto encoder selection is not enabled.
       if (autoSelectOnly)

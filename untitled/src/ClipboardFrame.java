@@ -72,7 +72,7 @@ class ClipboardFrame extends Frame
     add(closeButton);
     closeButton.addActionListener(this);
 
-    pack();
+    //pack();
 
     addWindowListener(this);
   }
