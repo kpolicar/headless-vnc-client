@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="ghostawt">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/ghostawt/ghostawt.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
