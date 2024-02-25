@@ -58,8 +58,8 @@ class VncCanvas extends Canvas
   int scaledWidth, scaledHeight;
 
   Image memImage;
-  Graphics graphics = new KpolicarGraphics("./vnccanvas.png");
-  Graphics memGraphics = new KpolicarGraphics("./memgraphics.png");
+  Graphics graphics = new KpolicarGraphics("vnccanvas");
+  Graphics memGraphics = new KpolicarGraphics("memgraphics");
   //Graphics memGraphics = new GGraphics2D(new GGraphicsConfiguration(new GGraphicsDevice()));
 
   Image rawPixelsImage;

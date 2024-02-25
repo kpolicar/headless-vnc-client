@@ -10,6 +10,8 @@ import java.awt.*;
 import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 
 public class KpolicarGraphics extends GGraphics2D {
     String path;
@@ -44,17 +46,28 @@ public class KpolicarGraphics extends GGraphics2D {
         buffered.copyData(wr);
 
         //System.out.println("PRINTING TO FILE "+path);
-        File f = new File(path);
+        File f = new File(System.getProperty("java.io.tmpdir")
+                +"oryxbot\\"+path+"\\"
+                +"capture_"+TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())+".png");
+        f.mkdirs();
+
         try {
             ImageIO.write(fullBufferedImage, "png", f);
         } catch (IOException e) {
             System.out.println("no? ");
         }
 
+        if (previousFile != null) {
+            previousFile.delete();
+        }
+        previousFile = f;
+
         rantimes++;
         return false;
 
     }
+
+    File previousFile = null;
 
     public boolean drawImage(Image img, int x, int y, ImageObserver observer) {
         return drawImage(img, x, y, img.getWidth(observer), img.getHeight(observer), observer);

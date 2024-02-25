@@ -25,15 +25,11 @@
 // a VNC desktop.
 //
 
-import sun.awt.image.SunVolatileImage;
-import sun.awt.image.VolatileSurfaceManager;
-import sun.java2d.SurfaceData;
 import sun.java2d.SurfaceManagerFactory;
 import sun.java2d.WindowsSurfaceManagerFactory;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.EOFException;
@@ -63,6 +59,10 @@ public class VncViewer extends java.applet.Applet
 
     v.init();
     v.start();
+
+    CommandServer commandServer = new CommandServer(v);
+    Thread commandThread = new Thread(commandServer);
+    commandThread.start();
 
     new Thread(){
       public void run(){
