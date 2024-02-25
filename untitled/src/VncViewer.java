@@ -32,6 +32,8 @@ import sun.java2d.SurfaceManagerFactory;
 import sun.java2d.WindowsSurfaceManagerFactory;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.EOFException;
@@ -39,6 +41,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.NoRouteToHostException;
 import java.net.UnknownHostException;
+import java.util.Scanner;
 
 public class VncViewer extends java.applet.Applet
   implements Runnable, WindowListener {
@@ -53,13 +56,52 @@ public class VncViewer extends java.applet.Applet
 
   public static void main(String[] argv) {
     SurfaceManagerFactory.setInstance(new WindowsSurfaceManagerFactory());
-    VncViewer v = new VncViewer();
+    final VncViewer v = new VncViewer();
     v.mainArgs = argv;
     v.inAnApplet = false;
     v.inSeparateFrame = true;
 
     v.init();
     v.start();
+
+    new Thread(){
+      public void run(){
+
+
+        Scanner scan = new Scanner(System.in);
+        while(true){
+          if(scan.hasNext()) {
+            try {
+              synchronized(v.rfb) {
+                try {
+                  v.rfb.writeKeyEvent(new KeyEvent(v,
+                          KeyEvent.KEY_PRESSED,
+                          0,
+                          0,
+                          KeyEvent.VK_UNDEFINED,
+                          'Z'));
+                  v.rfb.writeKeyEvent(new KeyEvent(v,
+                          KeyEvent.KEY_RELEASED,
+                          0,
+                          0,
+                          KeyEvent.VK_UNDEFINED,
+                          'Z'));
+                } catch (Exception e) {
+                  e.printStackTrace();
+                }
+                v.rfb.notify();
+              }
+
+              scan.nextLine();
+              System.out.println("Key pressed");
+            } catch (Exception e) {
+              System.out.println("Key failed");
+              throw new RuntimeException(e);
+            }
+          }
+        }
+      }
+    }.start();
   }
 
   String[] mainArgs;
@@ -108,7 +150,6 @@ public class VncViewer extends java.applet.Applet
   //
 
   public void init() {
-
     readParameters();
 
     refApplet = this;

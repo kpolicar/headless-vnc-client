@@ -26,7 +26,7 @@ public class KpolicarGraphics extends GGraphics2D {
     @Override
     public boolean drawImage(Image img, int x, int y, int width, int height, ImageObserver observer) {
         if (System.currentTimeMillis() - previous > 1000) {
-            System.out.println("1 second");
+            //System.out.println("1 second");
             previous = System.currentTimeMillis();
         } else {
             return false;
@@ -43,7 +43,7 @@ public class KpolicarGraphics extends GGraphics2D {
                 .getRaster();
         buffered.copyData(wr);
 
-        System.out.println("PRINTING TO FILE "+path);
+        //System.out.println("PRINTING TO FILE "+path);
         File f = new File(path);
         try {
             ImageIO.write(fullBufferedImage, "png", f);
