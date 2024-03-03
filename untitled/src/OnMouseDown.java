@@ -22,12 +22,12 @@ public class OnMouseDown implements HttpHandler {
             Map<String, String> query = splitQuery(httpExchange.getRequestURI());
             int x = Integer.parseInt(query.get("x"));
             int y = Integer.parseInt(query.get("y"));
-            boolean isLeft = query.get("mouse") != "right";
+            boolean isLeft = !query.get("mouse").equals("right");
 
             viewer.rfb.writePointerEvent(new MouseEvent(viewer,
                     MouseEvent.MOUSE_PRESSED,
                     0,
-                    isLeft ? MouseEvent.BUTTON1 : MouseEvent.BUTTON3_MASK,
+                    isLeft ? MouseEvent.BUTTON1 : MouseEvent.BUTTON3_MASK | MouseEvent.META_MASK,
                     x,
                     y,
                     1,

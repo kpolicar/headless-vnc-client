@@ -26,8 +26,9 @@
 //
 
 import sun.java2d.SurfaceManagerFactory;
-import sun.java2d.WindowsSurfaceManagerFactory;
+//import sun.java2d.WindowsSurfaceManagerFactory;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
@@ -51,7 +52,7 @@ public class VncViewer extends java.applet.Applet
   //
 
   public static void main(String[] argv) {
-    SurfaceManagerFactory.setInstance(new WindowsSurfaceManagerFactory());
+    //SurfaceManagerFactory.setInstance(new WindowsSurfaceManagerFactory());
     final VncViewer v = new VncViewer();
     v.mainArgs = argv;
     v.inAnApplet = false;

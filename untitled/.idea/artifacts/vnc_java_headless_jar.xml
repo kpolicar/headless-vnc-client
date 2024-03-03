@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="vnc_java-headless:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/vnc_java_headless_jar</output-path>
+    <root id="archive" name="vnc_java-headless.jar">
+      <element id="module-output" name="vnc_java-headless" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/ghostawt/ghostawt.jar" path-in-jar="/" />
+      <element id="library" level="project" name="ghostawt" />
+    </root>
+  </artifact>
+</component>
